@@ -1,0 +1,66 @@
+plugins {
+    id 'java'
+    id 'antlr'
+    id 'com.github.johnrengelman.shadow' version '4.0.1'
+}
+
+group 'ctddev.ifmo'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    antlr "org.antlr:antlr4:4.5"
+}
+
+task deleteFromBuild(type: Delete) {
+    delete "${buildDir}/generated-src/antlr"
+}
+
+task deleteOutdated(type: Delete) {
+    delete "src/main/generated"
+}
+
+task copyGeneratedSources(type: Copy) {
+    from "${buildDir}/generated-src/antlr/main"
+    into "src/main/generated"
+}
+
+task prepareSources()
+
+copyGeneratedSources.dependsOn generateGrammarSource
+deleteFromBuild.dependsOn copyGeneratedSources
+prepareSources.dependsOn deleteFromBuild
+compileJava.dependsOn deleteFromBuild
+
+generateGrammarSource {
+    arguments += ["-visitor"]
+}
+
+sourceSets {
+    main {
+        java {
+            //srcDir "${buildDir}/generated-src/antlr/main" //huh :(
+            srcDir "src/main/generated"
+        }
+    }
+}
+
+shadowJar {
+    configurations = [project.configurations.compile]
+    baseName = 'verifier'
+    classifier = null
+    version = null
+    manifest {
+        attributes 'Main-Class': 'Main'
+    }
+}
+
+configurations {
+    compile.extendsFrom antlr
+}
