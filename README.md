@@ -3,7 +3,7 @@ Download distribution from [here](https://github.com/KirillTim/verifier/releases
 
 ```
 java -jar verifier.jar
-Usage: java -jar checker.jar <path to XML file containing automation> <ltl formula>
+Usage: java -jar verifier.jar <path to XML file containing automation> <ltl formula>
 ```
 
 ### Tests
